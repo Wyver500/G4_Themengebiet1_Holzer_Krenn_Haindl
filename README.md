@@ -1,5 +1,6 @@
 PAD- Projekt
 Gruppe 4
+
 Ausgewählter Themenkreis: Themenkreis 1 – Auswertung von Sensor-Rohdaten
 Projektvertreter: Clemens Holzer
 Projektmitglieder: Andreas Haindl, Lukas Krenn
