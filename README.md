@@ -66,3 +66,8 @@ Allgemeine Funktionserklärung:
 
 Das fertige Programm soll dem Benutzer die Möglichkeit geben, die Temperatur, den Druck, die Luftfeuchtigkeit oder den Standort zu einem Gewünschten Zeitpunkt/Zeitraum auszugeben. Dabei sollen die Fehler in der Sensordatei ignoriert werden, indem man diese mit den vorherigen und vorangehenden Sensorwerten vergleicht. Der Benutzer soll alles über ein Menü steuern können. 
 Die Daten werden dabei nicht im gesamten gespeichert, sondern es werden nur die benötigten von dem Zeitpunkt/Zeitraum betroffenen Daten dynamisch abgespeichert. 
+
+
+Use case:
+Für die erfolgreiche Ausführung des Programmes und dessen Features wird eine Datei vorausgesetzt welche Sensordaten enthält vorausgesetzt. Diese Datei soll Sensordaten zur Temperatur, Luftfeuchtigkeit, Luftdruck zur XYZ Koordinate des Rasberry-Pi enthalten mit entsprechenden Zeitstemplel wann diese Daten aufgezeichnet wurden. Natürlich können nur Daten aufgerufen werden welche auch verfügbar sind, was bedeutet dass der Benutzer sich im klaren ist das er keinen Daten aus der Zukunft aufrufen kann. Das Programm kann dazu genutzt werden um in der Agrarwirtschaft die Umweltfaktoren für das ideale Pflanzenwachstum zu überwachen.
+
