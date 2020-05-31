@@ -15,7 +15,6 @@ Entwicklungsstufen:
 -	Ausgabe der Daten 
 -	Implementierung der Funktionen in eine Library
 -	Gestalten der Benutzeroberfläche
--	Korrektur der Letzen Fehler
 
 Milestones:
 -	21.5.2020 – Implementierung von Github
@@ -33,10 +32,6 @@ Zur Gruppeninternen Kommunikation werden Programme wie Whatsapp, Discord und MS-
 Kann ein Programmteil nicht alleine bewältigt werden, werden diese gemeinsam programmiert.
 Die Daten werden als Struct dynamisch gespeichert.
 Alle Auswertungen werden als Funktionen in Librarys implementiert, das Hauptprogramm besteht nur noch aus der Benutzeroberfläche und den Funktionsaufrufen.
-Das Programm soll so effizient wie möglich programmiert werden. 
-
-
-
 
 
 Programmfunktionen:
@@ -57,7 +52,7 @@ Verwendete Sensoren:
 -	LPS25HB (Druck)
 -	LSM9DS1 (XYZ-Koordinaten)
 
-Fehlermanagement:
+management:
 -	Sensorausschläge sollen ignoriert werden
 -	Datum und Uhrzeiteingabe muss vollständig sein und vorhanden sein
 
