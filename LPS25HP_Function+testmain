@@ -104,16 +104,10 @@ void write_struct_array(struct Record *temp_Record, char *filename_write, int nu
         printf("could not open %s",open_file);
         exit(-1);
     }
-    /*
-    for (int numb = 1; numb<=numb_Records; numb++)
-    {
-        fprintf(open_file,"%f;%x;%x;%X;%X;%X\n",temp_Record[numb-1].timestamp,temp_Record[numb-1].TEMP_OUT_L,temp_Record[numb-1].TEMP_OUT_H,temp_Record[numb-1].PRESS_OUT_XL,temp_Record[numb-1].PRESS_OUT_L,temp_Record[numb-1].PRESS_OUT_H);
-    }
-    */
 
     for (int numb = 1; numb<=numb_Records; numb++)
     {
-        fprintf(open_file,"%d.%d.%d %d:%d:%d\n",temp_Record[numb-1].Jahr,temp_Record[numb-1].Monat,temp_Record[numb-1].Tag,temp_Record[numb-1].Stunde,temp_Record[numb-1].Minute,temp_Record[numb-1].Sekunde);
+        fprintf(open_file,"%d.%d.%d %d:%d:%d  %x;%x;%X;%X;%X\n",temp_Record[numb-1].Jahr,temp_Record[numb-1].Monat,temp_Record[numb-1].Tag,temp_Record[numb-1].Stunde,temp_Record[numb-1].Minute,temp_Record[numb-1].Sekunde,temp_Record[numb-1].TEMP_OUT_L,temp_Record[numb-1].TEMP_OUT_H,temp_Record[numb-1].PRESS_OUT_XL,temp_Record[numb-1].PRESS_OUT_L,temp_Record[numb-1].PRESS_OUT_H);
     }
     fclose(open_file);
 }
