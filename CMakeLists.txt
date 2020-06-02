@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
-project(generic_list)
+project(ThemengebietG1)
 
 set(CMAKE_C_FLAGS "-std=c99 -Werror")
 set(CMAKE_BUILD_TYPE "Debug")
