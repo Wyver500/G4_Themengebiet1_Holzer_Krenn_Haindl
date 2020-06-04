@@ -7,17 +7,21 @@
 struct Record         // Values Temp und Press in Hex
 {
     double timestamp; // Zeitstempel in Sekunden (LINUX)
+
     int Jahr;
     int Monat;
     int Tag;
     int Stunde;
     int Minute;
     int Sekunde;
+
     int TEMP_OUT_L;  // Temperatur LSB   (°F)
     int TEMP_OUT_H;  // Temperatur MSB
+
     int PRESS_OUT_XL;// Druck LSB       (hPa)
     int PRESS_OUT_L; // Druck Mid Part
     int PRESS_OUT_H; // Druck MSB
+    int PRESS;
 };
 
 
@@ -107,7 +111,7 @@ void write_struct_array(struct Record *temp_Record, char *filename_write, int nu
 
     for (int numb = 1; numb<=numb_Records; numb++)
     {
-        fprintf(open_file,"%d.%d.%d %d:%d:%d  %x;%x;%X;%X;%X\n",temp_Record[numb-1].Jahr,temp_Record[numb-1].Monat,temp_Record[numb-1].Tag,temp_Record[numb-1].Stunde,temp_Record[numb-1].Minute,temp_Record[numb-1].Sekunde,temp_Record[numb-1].TEMP_OUT_L,temp_Record[numb-1].TEMP_OUT_H,temp_Record[numb-1].PRESS_OUT_XL,temp_Record[numb-1].PRESS_OUT_L,temp_Record[numb-1].PRESS_OUT_H);
+        fprintf(open_file,"TIME:%d.%d.%d %d:%d:%d  PRESSURE:%d hPa\n",temp_Record[numb-1].Tag,temp_Record[numb-1].Monat,temp_Record[numb-1].Jahr,temp_Record[numb-1].Stunde,temp_Record[numb-1].Minute,temp_Record[numb-1].Sekunde,temp_Record[numb-1].PRESS);
     }
     fclose(open_file);
 }
@@ -182,25 +186,41 @@ void arraytimecalc(struct Record *temp_Record, int numb_Records) // Array zeitst
 
 }
 
+void PRESS_CALC(struct Record *temp_Record, int numb_Records) // Druck berechnung
+{
+    for (int numb = 0; numb<numb_Records; numb++)
+    {
+        temp_Record[numb].PRESS=temp_Record[numb].PRESS_OUT_H;
+        temp_Record[numb].PRESS=temp_Record[numb].PRESS<<8;
+        temp_Record[numb].PRESS=temp_Record[numb].PRESS|temp_Record[numb].PRESS_OUT_L;
+        temp_Record[numb].PRESS=temp_Record[numb].PRESS<<8;
+        temp_Record[numb].PRESS=temp_Record[numb].PRESS|temp_Record[numb].PRESS_OUT_XL;
+
+        temp_Record[numb].PRESS=temp_Record[numb].PRESS/4096;
+    }
+}
+
 int main()
 {
     //Variablen zur Datendatei Einlesen
-    char filename_read[] = "Test_Data_45_LPS25_02.csv";     // Datei zum Einlesen
-    char filename_write[] = "write_test.txt";    // Datei zum Schreiben
+    char filename_read[] = "Test_Data_45_LPS25_02.csv"; // Datei zum Einlesen
+    char filename_write[] = "write_test.txt";           // Datei zum Schreiben
 
-    struct Record *All_Records;                  // Pointer auf Startadresse des Arrays
+    struct Record *All_Records;                         // Pointer auf Startadresse des Arrays
     ////////////////////////////////////////////////
 
 
-    All_Records = read_source(filename_read);    // Einlesen der Daten
+    All_Records = read_source(filename_read);           // Einlesen der Daten
 
-    int numb_Records = count_Records(All_Records);    // Zählen der Records
+    int numb_Records = count_Records(All_Records);      // Zählen der Records
 
-    arraytimecalc(All_Records, numb_Records);          //Umrechnung der Unix zeit in reguläres Zeitmaß
+    arraytimecalc(All_Records, numb_Records);           //Umrechnung der Unix zeit in reguläres Zeitmaß
+
+    PRESS_CALC(All_Records, numb_Records);              //BIT in hPa
 
     write_struct_array(All_Records, filename_write, numb_Records);   // Schreiben der Daten in neue Datei
 
-    free(All_Records);                                // Speicher freigeben
+    free(All_Records);                                  // Speicher freigeben
 
     return 0;
 }
