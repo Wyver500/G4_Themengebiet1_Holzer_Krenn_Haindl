@@ -35,7 +35,7 @@ void print_struct_array(struct Record *temp_Record, int numb_Records) //3     //
 
 }
 
-struct Record *read_source(char *filename_read) //1         // Einlesen der Daten und Speichern in struct Array
+struct Record *read_LPS25HP(char *filename_read) //1         // Einlesen der Daten und Speichern in struct Array
 {
 
     char line[BUFLEN];
@@ -227,7 +227,7 @@ int main()
     ////////////////////////////////////////////////
 
 
-    All_Records = read_source(filename_read);           // Einlesen der Daten
+    All_Records = read_LPS25HP(filename_read);           // Einlesen der Daten
 
     int numb_Records = count_Records(All_Records);      // Zählen der Records
 
