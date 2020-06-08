@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#define Offset 45
 #define BUFLEN 1024
 
 struct Record         // Values Temp und Press in Hex
@@ -15,8 +15,9 @@ struct Record         // Values Temp und Press in Hex
     int Minute;
     int Sekunde;
 
-    int TEMP_OUT_L;  // Temperatur LSB   (°F)
+    int TEMP_OUT_L;  // Temperatur LSB  
     int TEMP_OUT_H;  // Temperatur MSB
+    int TEMP;
 
     int PRESS_OUT_XL;// Druck LSB       (hPa)
     int PRESS_OUT_L; // Druck Mid Part
@@ -27,9 +28,9 @@ struct Record         // Values Temp und Press in Hex
 
 void print_struct_array(struct Record *temp_Record, int numb_Records) //3     // Ausgabe von numb_Records
 {
-    for (int numb = 1; numb<numb_Records; numb++)
+    for (int numb = 0; numb<numb_Records; numb++)
     {
-        printf(" %f, %d, %d, %d, %d, %d \n",temp_Record[numb-1].timestamp,temp_Record[numb-1].TEMP_OUT_L,temp_Record[numb-1].TEMP_OUT_H,temp_Record[numb-1].PRESS_OUT_XL,temp_Record[numb-1].PRESS_OUT_L,temp_Record[numb-1].PRESS_OUT_H);
+        printf(" %f, %d, %d, %d, %d, %d \n",temp_Record[numb].timestamp,temp_Record[numb].TEMP_OUT_L,temp_Record[numb].TEMP_OUT_H,temp_Record[numb].PRESS_OUT_XL,temp_Record[numb].PRESS_OUT_L,temp_Record[numb].PRESS_OUT_H);
     }
 
 }
@@ -94,7 +95,7 @@ struct Record *read_source(char *filename_read) //1         // Einlesen der Date
     fclose(open_file);
 
     temp_Record = realloc(temp_Record,numb*sizeof(struct Record));
-    temp_Record[numb-1].timestamp = 0.0;                            // sicherstellen, dass am Ende des Arrays 0.0 im timestamp steht
+    temp_Record[numb-1].timestamp = EOF;                            // sicherstellen, dass am Ende des Arrays 0.0 im timestamp steht
 
     //print_struct_array(temp_Record, numb);
     return(temp_Record);
@@ -111,7 +112,7 @@ void write_struct_array(struct Record *temp_Record, char *filename_write, int nu
 
     for (int numb = 1; numb<=numb_Records; numb++)
     {
-        fprintf(open_file,"TIME:%d.%d.%d %d:%d:%d  PRESSURE:%d hPa\n",temp_Record[numb-1].Tag,temp_Record[numb-1].Monat,temp_Record[numb-1].Jahr,temp_Record[numb-1].Stunde,temp_Record[numb-1].Minute,temp_Record[numb-1].Sekunde,temp_Record[numb-1].PRESS);
+        fprintf(open_file,"TIME:%d.%d.%d %d:%d:%d TEMPERATURE: %d°C PRESSURE:%d hPa\n",temp_Record[numb-1].Tag,temp_Record[numb-1].Monat,temp_Record[numb-1].Jahr,temp_Record[numb-1].Stunde,temp_Record[numb-1].Minute,temp_Record[numb-1].Sekunde,temp_Record[numb-1].TEMP,temp_Record[numb-1].PRESS);
     }
     fclose(open_file);
 }
@@ -119,11 +120,11 @@ void write_struct_array(struct Record *temp_Record, char *filename_write, int nu
 int count_Records(struct Record *All_Records) //2
 {
     int i = 0;
-    while(All_Records[i].timestamp > 0.0)       // ACHTUNG!! setzt voraus, dass wirklich 0.0 im letzten timestamp steht
+    while(All_Records[i].timestamp!=EOF)       // ACHTUNG!! setzt voraus, dass wirklich 0.0 im letzten timestamp steht
     {
         i++;
     }
-    return i;
+    return i-1;
 }
 
 void UnixzeitNachDatum(unsigned long int unixtime,int *pJahr, int *pMonat, int *pTag,int *pStunde, int *pMinute, int *pSekunde)
@@ -200,6 +201,22 @@ void PRESS_CALC(struct Record *temp_Record, int numb_Records) // Druck berechnun
     }
 }
 
+
+void TEMP_CALC(struct Record *temp_Record, int numb_Records)
+{
+    int VZ=1;
+    for (int numb = 0; numb<numb_Records; numb++)
+    {
+        if(temp_Record[numb].TEMP_OUT_H>>7==1){VZ=-1;}        //Vorzeichenberechnung
+        else{VZ=1;}
+        temp_Record[numb].TEMP=temp_Record[numb].TEMP_OUT_H&0x7F;   //übernahme von  Temp_H ohne vorzeichen
+        temp_Record[numb].TEMP=temp_Record[numb].TEMP<<8;
+        temp_Record[numb].TEMP=temp_Record[numb].TEMP|temp_Record[numb].TEMP_OUT_L;        //Übernahme von Temp_L
+        temp_Record[numb].TEMP=((temp_Record[numb].TEMP/480)*VZ)+Offset;
+
+    }
+
+}
 int main()
 {
     //Variablen zur Datendatei Einlesen
@@ -217,6 +234,8 @@ int main()
     arraytimecalc(All_Records, numb_Records);           //Umrechnung der Unix zeit in reguläres Zeitmaß
 
     PRESS_CALC(All_Records, numb_Records);              //BIT in hPa
+
+    TEMP_CALC(All_Records, numb_Records);               //BIT in °C
 
     write_struct_array(All_Records, filename_write, numb_Records);   // Schreiben der Daten in neue Datei
 
