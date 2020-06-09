@@ -22,8 +22,8 @@ int main()
 
     TEMP_CALC(All_Records, numb_Records);               //BIT in °C
 
-    //write_struct_array(All_Records, filename_write, numb_Records);   // Schreiben der Daten in neue Datei
     //char filename_write[] = "write_test.txt";
+    //write_struct_array(All_Records, filename_write, numb_Records);   // Schreiben der Daten in neue Datei
 
     print_struct_array(All_Records, numb_Records);      //Daten Ausgeben
 
