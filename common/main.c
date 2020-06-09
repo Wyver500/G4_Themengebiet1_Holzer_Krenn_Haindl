@@ -14,13 +14,13 @@ int main()
 
     All_Records = read_LPS25HP(filename_read);           // Einlesen der Daten
 
-    int numb_Records = count_Records(All_Records);      // Z‰hlen der Records
+    int numb_Records = count_Records(All_Records);      // Z√§hlen der Records
 
-    arraytimecalc(All_Records, numb_Records);           //Umrechnung der Unix zeit in regul‰res Zeitmaﬂ
+    arraytimecalc(All_Records, numb_Records);           //Umrechnung der Unix zeit in regul√§res Zeitma√ü
 
     PRESS_CALC(All_Records, numb_Records);              //BIT in hPa
 
-    TEMP_CALC(All_Records, numb_Records);               //BIT in ∞C
+    TEMP_CALC(All_Records, numb_Records);               //BIT in ¬∞C
 
     //write_struct_array(All_Records, filename_write, numb_Records);   // Schreiben der Daten in neue Datei
     //char filename_write[] = "write_test.txt";
@@ -28,7 +28,5 @@ int main()
     print_struct_array(All_Records, numb_Records);      //Daten Ausgeben
 
     free(All_Records);                                  // Speicher freigeben
-    int l=0;
-    scanf("%d",&l);
     return 0;
 }
