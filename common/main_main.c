@@ -1,5 +1,7 @@
 #include <stdio.h>
-#include
+#include <stdlib.h>
+#include <string.h>
+#include "LPS25HP.h"
 
 
 
@@ -51,6 +53,11 @@ int main() {
         printf("Ende:");
         scanf("%d", &time_end);
         printf("------------------------------\n");
+        /////////////////////////////////////////////////////
+        //LPS25HP Funktionen
+        //Ausgabe der Daten
+        /////////////////////////////////////////////////////
+        
     }else if(Sensor == 3){
         printf("Gewaehlter Sensor ist:\n%d. %s\n", Sensor, Sen2);
     }
