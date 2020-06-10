@@ -1,0 +1,2 @@
+C:\PROGRA~1\CODEBL~1\MinGW\bin\ar.exe qc ..\lib\libLPS25HP.a  CMakeFiles/LPS25HP.dir/LPS25HP.c.obj
+C:\PROGRA~1\CODEBL~1\MinGW\bin\ranlib.exe ..\lib\libLPS25HP.a

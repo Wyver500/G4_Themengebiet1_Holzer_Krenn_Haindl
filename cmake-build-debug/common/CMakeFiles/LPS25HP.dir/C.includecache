@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/clemens/Desktop/G4_Themengebiet1_Holzer_Krenn_Haindl/common/LPS25HP.c
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+LPS25HP.h
+C:/Users/clemens/Desktop/G4_Themengebiet1_Holzer_Krenn_Haindl/common/LPS25HP.h
+
+C:/Users/clemens/Desktop/G4_Themengebiet1_Holzer_Krenn_Haindl/common/LPS25HP.h
+
