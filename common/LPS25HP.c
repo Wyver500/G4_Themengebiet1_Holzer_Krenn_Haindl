@@ -1,19 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define Offset 45
 #define BUFLEN 1024
 #include "LPS25HP.h"
 
-
-void print_struct_array(struct LPS25HP *temp_Record, int numb_Records) //3     // Ausgabe von numb_Records
+void print_struct_array(struct LPS25HP *temp_Record, int numb_Records, double timebeginn,double timeend) //3     // Ausgabe von numb_Records
 {
     int numb;
     for (numb = 1; numb<=numb_Records; numb++)
     {
-        printf("TIME:%02d.%02d.%4d %02d:%02d:%02d TEMPERATURE: %4d Celsius PRESSURE:%5d hPa\n",temp_Record[numb-1].Tag,temp_Record[numb-1].Monat,temp_Record[numb-1].Jahr,temp_Record[numb-1].Stunde,temp_Record[numb-1].Minute,temp_Record[numb-1].Sekunde,temp_Record[numb-1].TEMP,temp_Record[numb-1].PRESS);
+        if(timebeginn<=temp_Record[numb-1].timestamp&&timeend>=temp_Record[numb-1].timestamp)
+        {
+            printf("TIME:%02d.%02d.%4d %02d:%02d:%02d   TEMPERATURE: %4.2f Celsius   PRESSURE:%5.2f hPa\n",temp_Record[numb-1].Tag,temp_Record[numb-1].Monat,temp_Record[numb-1].Jahr,temp_Record[numb-1].Stunde,temp_Record[numb-1].Minute,temp_Record[numb-1].Sekunde,temp_Record[numb-1].TEMP,temp_Record[numb-1].PRESS);
+        }
     }
-
 }
 
 struct LPS25HP *read_LPS25HP(char *filename_read) //1         // Einlesen der Daten und Speichern in struct Array
@@ -76,33 +76,16 @@ struct LPS25HP *read_LPS25HP(char *filename_read) //1         // Einlesen der Da
     fclose(open_file);
 
     temp_Record = realloc(temp_Record,numb*sizeof(struct LPS25HP));
-    temp_Record[numb-1].timestamp = EOF;                            // sicherstellen, dass am Ende des Arrays 0.0 im timestamp steht
+    temp_Record[numb].timestamp =0.0;                            // sicherstellen, dass am Ende des Arrays 0.0 im timestamp steht
 
     //print_struct_array(temp_Record, numb);
     return(temp_Record);
 }
 
-
-void write_struct_array(struct LPS25HP *temp_Record, char *filename_write, int numb_Records)//4
-{
-    FILE *open_file = fopen(filename_write, "w+");
-    if (NULL==open_file)
-    {
-        printf("could not open %s",open_file);
-        exit(-1);
-    }
-    int numb;
-    for (numb = 1; numb<=numb_Records; numb++)
-    {
-        fprintf(open_file,"TIME:%d.%d.%d %d:%d:%d TEMPERATURE: %d°C PRESSURE:%d hPa\n",temp_Record[numb-1].Tag,temp_Record[numb-1].Monat,temp_Record[numb-1].Jahr,temp_Record[numb-1].Stunde,temp_Record[numb-1].Minute,temp_Record[numb-1].Sekunde,temp_Record[numb-1].TEMP,temp_Record[numb-1].PRESS);
-    }
-    fclose(open_file);
-}
-
 int count_Records(struct LPS25HP *All_Records) //2
 {
     int i = 0;
-    while(All_Records[i].timestamp!=EOF)       // ACHTUNG!! setzt voraus, dass wirklich 0.0 im letzten timestamp steht
+    while(All_Records[i].timestamp!=0.0)       // ACHTUNG!! setzt voraus, dass wirklich 0.0 im letzten timestamp steht
     {
         i++;
     }
@@ -173,14 +156,16 @@ void arraytimecalc(struct LPS25HP *temp_Record, int numb_Records) // Array zeits
 void PRESS_CALC(struct LPS25HP *temp_Record, int numb_Records) // Druck berechnung
 {
     int numb;
+    int help;
     for (numb = 0; numb<numb_Records; numb++)
     {
-        temp_Record[numb].PRESS=temp_Record[numb].PRESS_OUT_H;
-        temp_Record[numb].PRESS=temp_Record[numb].PRESS<<8;
-        temp_Record[numb].PRESS=temp_Record[numb].PRESS|temp_Record[numb].PRESS_OUT_L;
-        temp_Record[numb].PRESS=temp_Record[numb].PRESS<<8;
-        temp_Record[numb].PRESS=temp_Record[numb].PRESS|temp_Record[numb].PRESS_OUT_XL;
+        help=temp_Record[numb].PRESS_OUT_H;
+        help=help<<8;
+        help=help|temp_Record[numb].PRESS_OUT_L;
+        help=help<<8;
+        help=help|temp_Record[numb].PRESS_OUT_XL;
 
+        temp_Record[numb].PRESS=help;
         temp_Record[numb].PRESS=temp_Record[numb].PRESS/4096;
     }
 }
@@ -188,15 +173,19 @@ void PRESS_CALC(struct LPS25HP *temp_Record, int numb_Records) // Druck berechnu
 void TEMP_CALC(struct LPS25HP *temp_Record, int numb_Records)
 {
     int VZ=1;
+    float offset = 42.5;
     int numb;
     for (numb = 0; numb<numb_Records; numb++)
     {
+        int help=0;
         if(temp_Record[numb].TEMP_OUT_H>>7==1){VZ=-1;}        //Vorzeichenberechnung
         else{VZ=1;}
-        temp_Record[numb].TEMP=temp_Record[numb].TEMP_OUT_H&0x7F;   //übernahme von  Temp_H ohne vorzeichen
-        temp_Record[numb].TEMP=temp_Record[numb].TEMP<<8;
-        temp_Record[numb].TEMP=temp_Record[numb].TEMP|temp_Record[numb].TEMP_OUT_L;        //Übernahme von Temp_L
-        temp_Record[numb].TEMP=((temp_Record[numb].TEMP/480)*VZ)+Offset;
-
+        help=temp_Record[numb].TEMP_OUT_H;   //übernahme mit -1
+        help=help<<8;
+        if(VZ==-1){help=help|temp_Record[numb].TEMP_OUT_L&0xFE;help=~help&0xFFFF;}                      //invertieren falls 2s kompliment
+        else{help=help|temp_Record[numb].TEMP_OUT_L;}      //Übernahme von Temp_L}
+        temp_Record[numb].TEMP=help*VZ;
+        temp_Record[numb].TEMP=(temp_Record[numb].TEMP/480)+offset;
     }
 }
+

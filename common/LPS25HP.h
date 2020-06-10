@@ -11,20 +11,23 @@ typedef struct LPS25HP{
 
     int TEMP_OUT_L;  // Temperatur LSB
     int TEMP_OUT_H;  // Temperatur MSB
-    int TEMP;
+    float TEMP;
 
     int PRESS_OUT_XL;// Druck LSB       (hPa)
     int PRESS_OUT_L; // Druck Mid Part
     int PRESS_OUT_H; // Druck MSB
-    int PRESS;
+    float PRESS;
 
 }LPS25HP;
 
-void print_struct_array(struct LPS25HP*, int);
+
+void print_struct_array(struct LPS25HP*, int, double ,double);
 struct LPS25HP* read_LPS25HP(char*);
-void write_struct_array(struct LPS25HP*, char*, int);
 int count_Records(struct LPS25HP*);
 void UnixzeitNachDatum(unsigned long int,int*, int*, int*,int*, int*, int*);
 void arraytimecalc(struct LPS25HP*, int);
 void PRESS_CALC(struct LPS25HP*, int);
 void TEMP_CALC(struct LPS25HP*, int);
+
+
+
