@@ -6,7 +6,7 @@
 
 int main()
 {
-
+/*
     int Sensor;
     char Sen1 []= "HTS221 (Luftfeuchtigkeit und Temperatur)";
     char Sen2 []=  "LPS25HB (Druck)";
@@ -55,7 +55,7 @@ int main()
     }else if(Sensor == 3){
         printf("Gewaehlter Sensor ist:\n%d. %s\n", Sensor, Sen2);
     }
-
+*/
 
 
     //Variablen zur Datendatei Einlesen
