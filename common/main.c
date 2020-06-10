@@ -184,7 +184,7 @@ int main()
         //write_struct_array(All_Records, filename_write, numb_Records);   // Schreiben der Daten in neue Datei
         //char filename_write[] = "write_test.txt";
 
-        print_struct_array(All_Records, numb_Records,XXXXXXbeginn,XXXXXXXXXXXXend);      //Daten Ausgeben
+        print_struct_array(All_Records, numb_Records,u_input,u_input_l);      //Daten Ausgeben
 
         free(All_Records);                                  // Speicher freigeben
 
