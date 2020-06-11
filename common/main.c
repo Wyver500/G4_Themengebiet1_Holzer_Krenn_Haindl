@@ -60,7 +60,7 @@ int main()
         printf("Geben Sie gewuenschten Sensor ein:\n");
         scanf("%d", &Sensor);
         printf("------------------------------\n");
-        if (Sensor == 1){
+        if (Sensor == 2){
             printf("Gewaehlter Sensor ist:\n%d. %s\n", Sensor, Sen1);
             printf("------------------------------\n");
             printf("Geben Sie einen Zeitraum an in dem Sie die Sensordaten haben wollen\n");
@@ -104,7 +104,7 @@ int main()
             }
             printf("------------------------------\n");
 
-        }else if(Sensor == 2){
+        }else if(Sensor == 1){
             printf("Gewaehlter Sensor ist:\n%d. %s\n", Sensor, Sen2);
             printf("------------------------------\n");
             printf("Geben Sie einen Zeitraum an in dem Sie die Sensordaten haben wollen\n");
@@ -153,15 +153,14 @@ int main()
             break;
         }
 
+        time_start_h = time_start_h - 2;
+
         double u_input = unixzeit_eingabe(jahr,monat,tag,time_start_h,time_start_m,time_start_s);
         printf("%f\n", u_input);
 
         int time_lengh_s1 = time_lengh_s + time_start_s;
         double u_input_l = unixzeit_eingabe(jahr,monat,tag,time_start_h,time_start_m,time_lengh_s1);
         printf("%f\n", u_input_l);
-
-
-
 
         //Variablen zur Datendatei Einlesen
         char filename_read[] = "Test_Data_45_LPS25_02.csv"; // Datei zum Einlesen
