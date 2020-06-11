@@ -59,48 +59,71 @@ int main()
 
 
         //LPS-SENSOR//////////////////////////////////////////////////////////////////////
-        if (Sensor == 2){
+        while (Sensor == 2){
             system("cls");
             printf("Gewaehlter Sensor ist:\n%d. %s\n", Sensor, Sen1);
             printf("------------------------------\n");
             printf("Geben Sie einen Zeitraum an in dem Sie die Sensordaten haben wollen\n");
             printf("------------------------------\n");
             printf("Gemessener Zeitraum 17:29:55 - 17:34:35\n");
-            printf("------------------------------\n");
-            printf("Anfang in Stunden:");
-            scanf("%d", &time_start_h);
-            if (time_start_h != 17){
-                printf("Der eingegebene Wert befindet sich nicht im Zeitraum der Messung!");
-                exit(-1);
+
+            
+            while (time_start_h != 17 || time_start_h > 24){
+				printf("------------------------------\n");
+				printf("Anfang in Stunden:");
+				scanf("%d", &time_start_h);
+                if(time_start_h != 17 || time_start_h > 24){
+					printf("Der eingegebene Wert befindet sich nicht im Zeitraum der Messung!\n");    
+				}
+			}	
+            while (time_start_m <29 || time_start_m > 34 || time_start_m > 59){
+				printf("------------------------------\n");
+				printf("Anfang in Minuten:");
+				scanf("%d", &time_start_m);
+                if(time_start_m <29 || time_start_m > 34 || time_start_m > 59){
+					printf("Der eingegebene Wert befindet sich nicht im Zeitraum der Messung!\n");    
+				}
             }
-            printf("------------------------------\n");
-            printf("Anfang in Minuten:");
-            scanf("%d", &time_start_m);
-            if (time_start_m <29 || time_start_m > 34){
-                printf("Der eingegebene Wert befindet sich nicht im Zeitraum der Messung!");
-                exit(-1);
-            }
-            printf("------------------------------\n");
-            printf("Anfang in Sekunden:");
-            scanf("%d", &time_start_s);
+
             if (time_start_h == 17 && time_start_m == 29){
-                if (time_start_s < 55){
-                    printf("Der eingegebene Wert befindet sich nicht im Zeitraum der Messung!");
-                    exit(-1);
-                }
-            }
-            if (time_start_h == 17 && time_start_m == 34){
-                if (time_start_s < 35){
-                    printf("Der eingegebene Wert befindet sich nicht im Zeitraum der Messung!");
-                    exit(-1);
-                }
-            }
+				printf("------------------------------\n");
+				printf("Anfang in Sekunden:");
+				scanf("%d", &time_start_s);
+                while (time_start_s <= 54 || time_start_s > 59){
+                    printf("Der eingegebene Wert befindet sich nicht im Zeitraum der Messung!\n");
+					printf("------------------------------\n");
+					printf("Anfang in Sekunden:");
+					scanf("%d", &time_start_s);
+				}
+			}
+			if (time_start_h == 17 && time_start_m == 34){
+				printf("------------------------------\n");
+				printf("Anfang in Sekunden:");
+				scanf("%d", &time_start_s);
+				while (time_start_s > 35){
+					printf("Der eingegebene Wert befindet sich nicht im Zeitraum der Messung!\n");
+					printf("------------------------------\n");
+					printf("Anfang in Sekunden:");
+					scanf("%d", &time_start_s);
+					}
+				}	
+            if (time_start_h == 17 && time_start_m > 29 && time_start_m < 34){
+				printf("------------------------------\n");
+				printf("Anfang in Sekunden:");
+				scanf("%d", &time_start_s);
+				while (time_start_s > 59){
+					printf("Der eingegebene Wert befindet sich nicht im Zeitraum der Messung!");
+					printf("------------------------------\n");
+					printf("Anfang in Sekunden:");
+					scanf("%d", &time_start_s);
+					}
+			}
+					
             printf("------------------------------\n");
             printf("Wie lange in Millisekunden?(max. 280s):");
             scanf("%d", &time_lengh_s);
-            if(time_lengh_s >= 280){
+            while(time_lengh_s >= 280){
                 printf("Der eingegebene Wert befindet sich nicht im Zeitraum der Messung!");
-                exit(-1);
             }
             printf("------------------------------\n");
 
@@ -120,8 +143,13 @@ int main()
             TEMP_CALC(All_LPS, numb_LPS);               //BIT in °C
             print_LPS_array(All_LPS, numb_LPS,tbeginn,tend);      //Daten Ausgeben
             free(All_LPS);
-
-            printf("\n---------PRESS ENTER TO CONTINUE---------");
+			
+			Sensor = Sensor - 2;
+			time_start_h = 0;
+			time_start_m = 0;
+			time_start_s = 0;
+            
+			printf("\n---------PRESS ENTER TO CONTINUE---------");
             fflush(stdin);
             while (enter != '\r' && enter != '\n') { enter = getchar(); }
 
@@ -132,50 +160,75 @@ int main()
 
         //HTS-SENSOR//////////////////////////////////////////////////////////////////////
 
-        }else if(Sensor == 1){
+        }
+		while(Sensor == 1){
             system("cls");
             printf("Gewaehlter Sensor ist:\n%d. %s\n", Sensor, Sen2);
             printf("------------------------------\n");
             printf("Geben Sie einen Zeitraum an in dem Sie die Sensordaten haben wollen\n");
             printf("------------------------------\n");
             printf("Gemessener Zeitraum 19:44:32 - 19:49:48\n");
-            printf("------------------------------\n");
-            printf("Anfang in Stunden:");
-            scanf("%d", &time_start_h);
-            if (time_start_h != 19){
-                printf("Der eingegebene Wert befindet sich nicht im Zeitraum der Messung!");
-                exit(-1);
+
+                    
+            while (time_start_h != 19 || time_start_h > 24){
+				printf("------------------------------\n");
+				printf("Anfang in Stunden:");
+				scanf("%d", &time_start_h);
+                if(time_start_h != 19 || time_start_h > 24){
+					printf("Der eingegebene Wert befindet sich nicht im Zeitraum der Messung!\n");    
+				}
+			}	
+            while (time_start_m <29 || time_start_m > 49 || time_start_m > 59){
+				printf("------------------------------\n");
+				printf("Anfang in Minuten:");
+				scanf("%d", &time_start_m);
+                if(time_start_m <29 || time_start_m > 49 || time_start_m > 59){
+					printf("Der eingegebene Wert befindet sich nicht im Zeitraum der Messung!\n");    
+				}
             }
-            printf("------------------------------\n");
-            printf("Anfang in Minuten:");
-            scanf("%d", &time_start_m);
-            if (time_start_m <44 || time_start_m > 49){
-                printf("Der eingegebene Wert befindet sich nicht im Zeitraum der Messung!");
-                exit(-1);
-            }
-            printf("------------------------------\n");
-            printf("Anfang in Sekunden:");
-            scanf("%d", &time_start_s);
+
             if (time_start_h == 19 && time_start_m == 44){
-                if (time_start_s < 32){
-                    printf("Der eingegebene Wert befindet sich nicht im Zeitraum der Messung!");
-                    exit(-1);
-                }
-            }
-            if (time_start_h == 19 && time_start_m == 49){
-                if (time_start_s < 48){
-                    printf("Der eingegebene Wert befindet sich nicht im Zeitraum der Messung!");
-                    exit(-1);
-                }
-            }
+				printf("------------------------------\n");
+				printf("Anfang in Sekunden:");
+				scanf("%d", &time_start_s);
+                while (time_start_s <= 31 || time_start_s > 59){
+                    printf("Der eingegebene Wert befindet sich nicht im Zeitraum der Messung!\n");
+					printf("------------------------------\n");
+					printf("Anfang in Sekunden:");
+					scanf("%d", &time_start_s);
+				}
+			}
+			if (time_start_h == 19 && time_start_m == 49){
+				printf("------------------------------\n");
+				printf("Anfang in Sekunden:");
+				scanf("%d", &time_start_s);
+				while (time_start_s > 48){
+					printf("Der eingegebene Wert befindet sich nicht im Zeitraum der Messung!\n");
+					printf("------------------------------\n");
+					printf("Anfang in Sekunden:");
+					scanf("%d", &time_start_s);
+					}
+				}	
+            if (time_start_h == 19 && time_start_m > 44 && time_start_m < 49){
+				printf("------------------------------\n");
+				printf("Anfang in Sekunden:");
+				scanf("%d", &time_start_s);
+				while (time_start_s > 59){
+					printf("Der eingegebene Wert befindet sich nicht im Zeitraum der Messung!");
+					printf("------------------------------\n");
+					printf("Anfang in Sekunden:");
+					scanf("%d", &time_start_s);
+					}
+			}
+					
             printf("------------------------------\n");
-            printf("Wie lange in Millisekunden?(max. 316s):");
+            printf("Wie lange in Millisekunden?(max. 280s):");
             scanf("%d", &time_lengh_s);
-            if(time_lengh_s >= 316){
+            while(time_lengh_s >= 280){
                 printf("Der eingegebene Wert befindet sich nicht im Zeitraum der Messung!");
-                exit(-1);
             }
             printf("------------------------------\n");
+
             //timestamp berechnen//////////////////////////////////////////////////////////////////
             time_start_h = time_start_h - 2;
 
@@ -192,6 +245,12 @@ int main()
             TEMP_CALCULATION(All_HTS, numb_HTS);        // Temperatur ausrechnen in °C
             print_HTS_array(All_HTS,numb_HTS,tbeginn,tend);
             free(All_HTS);
+			
+			Sensor = Sensor - 1;
+			time_start_h = 0;
+			time_start_m = 0;
+			time_start_s = 0;
+            
 
             printf("\n---------PRESS ENTER TO CONTINUE---------");
             fflush(stdin);
@@ -201,7 +260,8 @@ int main()
 
 
         ////XYZ-SENSOR//////////////////////////////////////////////////////////////////////////////
-        }else if(Sensor == 3){
+        }
+		while(Sensor == 3){
             system("cls");
             printf("Gewaehlter Sensor ist:\n%d. %s\n", Sensor, Sen2);
         }
@@ -209,7 +269,7 @@ int main()
 
 
         ////QUIT-PROGRAMM//////////////////////////////////////////////////////////////////////////////
-        else if(Sensor == 4){
+        while(Sensor == 4){
             system("cls");
             printf("PROGRAMM WIRD GESCHLOSSEN");
             for(int i=0;i<3000000;i++){}
