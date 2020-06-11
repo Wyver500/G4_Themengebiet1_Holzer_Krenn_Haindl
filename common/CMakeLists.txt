@@ -1,6 +1,6 @@
-add_library(LPS25HP STATIC LPS25HP.c)
+add_library(Funktionen STATIC Funktionen.c)
 
-add_executable(LPS25HPexe main.c)
-target_link_libraries (LPS25HPexe LPS25HP)
+add_executable(DEMO main.c)
+target_link_libraries (DEMO Funktionen)
 
 #add_subdirectory(demo)

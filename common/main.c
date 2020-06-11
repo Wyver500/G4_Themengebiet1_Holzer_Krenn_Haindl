@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "LPS25HP.h"
+#include "Funktionen.h"
 
 /** Konvertiert gegliederte UTC-Angaben in Unix-Zeit.
 * Parameter und ihre Werte-Bereiche:
@@ -12,29 +12,18 @@
 * - minute [0..59]
 * - sekunde [0..59]
 */
-double unixzeit_eingabe(int jahr, int monat, int tag,
-                           int stunde, int minute, int sekunde)
-{
-    const short tage_seit_jahresanfang[12] = /* Anzahl der Tage seit Jahresanfang ohne Tage des aktuellen Monats und ohne Schalttag */
-            {0,31,59,90,120,151,181,212,243,273,304,334};
-
-    int schaltjahre = ((jahr-1)-1968)/4 /* Anzahl der Schaltjahre seit 1970 (ohne das evtl. laufende Schaltjahr) */
-                      - ((jahr-1)-1900)/100
-                      + ((jahr-1)-1600)/400;
-
-    long long tage_seit_1970 = (jahr-1970)*365 + schaltjahre
-                               + tage_seit_jahresanfang[monat-1] + tag-1;
-
-    if ( (monat>2) && (jahr%4==0 && (jahr%100!=0 || jahr%400==0)) )
-        tage_seit_1970 += 1; /* +Schalttag, wenn jahr Schaltjahr ist */
-
-    return sekunde + 60 * ( minute + 60 * (stunde + 24*tage_seit_1970) );
-}
 
 int main()
 {
+    char filename_HTS[]= "Test_Data_10k_HTS221.csv";
+    char filename_LPS[]= "Test_Data_45_LPS25_02.csv";
+    struct LPS25HP *All_LPS;
+    struct HTS_221 *All_HTS;
+
     while(1){
 
+
+        //MAINMENUE/////////////////////////////////////////////////////////
         int Sensor;
 
         char Sen1 []= "HTS221 (Luftfeuchtigkeit und Temperatur)";
@@ -60,6 +49,11 @@ int main()
         printf("Geben Sie gewuenschten Sensor ein:\n");
         scanf("%d", &Sensor);
         printf("------------------------------\n");
+
+        //////////////////////////////////////////////////////////////////////////
+
+
+        //LPS-SENSOR//////////////////////////////////////////////////////////////////////
         if (Sensor == 2){
             printf("Gewaehlter Sensor ist:\n%d. %s\n", Sensor, Sen1);
             printf("------------------------------\n");
@@ -104,6 +98,29 @@ int main()
             }
             printf("------------------------------\n");
 
+            //timestamp berechnen//////////////////////////////////////////////////////////////////
+            time_start_h = time_start_h - 2;
+
+            double tbeginn = unixzeit_eingabe(jahr,monat,tag,time_start_h,time_start_m,time_start_s);
+
+            int time_lengh_s1 = time_lengh_s + time_start_s;
+            double tend = unixzeit_eingabe(jahr,monat,tag,time_start_h,time_start_m,time_lengh_s1);
+            //////////////////////////////////////////////////////////////////////
+
+            All_LPS = read_LPS25HP(filename_LPS);           // Einlesen der Daten
+            int numb_LPS = count_LPS(All_LPS);      // Zählen der Records
+            arraytimecalcLPS(All_LPS, numb_LPS);           //Umrechnung der Unix zeit in reguläres Zeitmaß
+            PRESS_CALC(All_LPS, numb_LPS);              //BIT in hPa
+            TEMP_CALC(All_LPS, numb_LPS);               //BIT in °C
+            print_LPS_array(All_LPS, numb_LPS,tbeginn,tend);      //Daten Ausgeben
+            free(All_LPS);
+
+            //////////////////////////////////////////////////////////////////////////////////
+
+
+
+        //HTS-SENSOR//////////////////////////////////////////////////////////////////////
+
         }else if(Sensor == 1){
             printf("Gewaehlter Sensor ist:\n%d. %s\n", Sensor, Sen2);
             printf("------------------------------\n");
@@ -147,46 +164,38 @@ int main()
                 exit(-1);
             }
             printf("------------------------------\n");
+            //timestamp berechnen//////////////////////////////////////////////////////////////////
+            time_start_h = time_start_h - 2;
+
+            double tbeginn = unixzeit_eingabe(jahr,monat,tag,time_start_h,time_start_m,time_start_s);
+
+            int time_lengh_s1 = time_lengh_s + time_start_s;
+            double tend = unixzeit_eingabe(jahr,monat,tag,time_start_h,time_start_m,time_lengh_s1);
+            //////////////////////////////////////////////////////////////////////
+
+            All_HTS = read_source(filename_HTS);
+            int numb_HTS= count_HTS (All_HTS);    // Zählen der Records
+            arraytimecalcHTS(All_HTS, numb_HTS);          //Umrechnung der Unix zeit in reguläres Zeitmaß
+            HUM_CALCULATION(All_HTS, numb_HTS);         // Umrechnung Feuchtigkeit in %
+            TEMP_CALCULATION(All_HTS, numb_HTS);        // Temperatur ausrechnen in °C
+            print_HTS_array(All_HTS,numb_HTS,tbeginn,tend);
+            free(All_HTS);
+
+            //////////////////////////////////////////////////////////////////////////////////
+
+
+        ////XYZ-SENSOR//////////////////////////////////////////////////////////////////////////////
         }else if(Sensor == 3){
             printf("Gewaehlter Sensor ist:\n%d. %s\n", Sensor, Sen2);
-        }else if(Sensor == 4){
+        }
+        //////////////////////////////////////////////////////////////////////////////////
+
+
+        ////QUIT-PROGRAMM//////////////////////////////////////////////////////////////////////////////
+        else if(Sensor == 4){
             break;
         }
-
-        time_start_h = time_start_h - 2;
-
-        double u_input = unixzeit_eingabe(jahr,monat,tag,time_start_h,time_start_m,time_start_s);
-        printf("%f\n", u_input);
-
-        int time_lengh_s1 = time_lengh_s + time_start_s;
-        double u_input_l = unixzeit_eingabe(jahr,monat,tag,time_start_h,time_start_m,time_lengh_s1);
-        printf("%f\n", u_input_l);
-
-        //Variablen zur Datendatei Einlesen
-        char filename_read[] = "Test_Data_45_LPS25_02.csv"; // Datei zum Einlesen
-
-        struct LPS25HP *All_Records;                         // Pointer auf Startadresse des Arrays
-        ////////////////////////////////////////////////
-
-        All_Records = read_LPS25HP(filename_read);           // Einlesen der Daten
-
-        int numb_Records = count_Records(All_Records);      // Zählen der Records
-
-        printf("%d", numb_Records);
-
-        arraytimecalc(All_Records, numb_Records);           //Umrechnung der Unix zeit in reguläres Zeitmaß
-
-        PRESS_CALC(All_Records, numb_Records);              //BIT in hPa
-
-        TEMP_CALC(All_Records, numb_Records);               //BIT in °C
-
-        //write_struct_array(All_Records, filename_write, numb_Records);   // Schreiben der Daten in neue Datei
-        //char filename_write[] = "write_test.txt";
-
-        print_struct_array(All_Records, numb_Records,u_input,u_input_l);      //Daten Ausgeben
-
-        free(All_Records);                                  // Speicher freigeben
-
+        //////////////////////////////////////////////////////////////////////////////////
     }
     return 0;
 }
