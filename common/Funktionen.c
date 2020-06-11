@@ -12,7 +12,7 @@ void print_HTS_array(struct HTS_221 *temp_HTS, int numb_HTS, double timebeginn,d
     {
         if(timebeginn<=temp_HTS[numb-1].timestamp&&timeend>=temp_HTS[numb-1].timestamp)
         {
-            printf("%d.%d.%d %d:%d:%d ; %.2f%%  ;%.2f°C\n",temp_HTS[numb-1].Jahr,temp_HTS[numb-1].Monat,temp_HTS[numb-1].Tag,temp_HTS[numb-1].Stunde,temp_HTS[numb-1].Minute,temp_HTS[numb-1].Sekunde,temp_HTS[numb-1].Feuchtigkeit,temp_HTS[numb-1].Temperatur);
+            printf("%4d.%02d.%02d %02d:%02d:%02d  HUMIDITY:%.2f%%  TEMPERATURE:%.2fCelsius\n",temp_HTS[numb-1].Jahr,temp_HTS[numb-1].Monat,temp_HTS[numb-1].Tag,temp_HTS[numb-1].Stunde,temp_HTS[numb-1].Minute,temp_HTS[numb-1].Sekunde,temp_HTS[numb-1].Feuchtigkeit,temp_HTS[numb-1].Temperatur);
         }
     }
 }

@@ -60,5 +60,3 @@ void PRESS_CALC(struct LPS25HP*, int);
 void TEMP_CALC(struct LPS25HP*, int);
 
 double unixzeit_eingabe(int, int, int,int, int, int);
-
-
