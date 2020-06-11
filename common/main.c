@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include<windows.h>
 #include "Funktionen.h"
 
 /** Konvertiert gegliederte UTC-Angaben in Unix-Zeit.
@@ -15,6 +16,7 @@
 
 int main()
 {
+    int fortfahren=0;
     char filename_HTS[]= "Test_Data_10k_HTS221.csv";
     char filename_LPS[]= "Test_Data_45_LPS25_02.csv";
     struct LPS25HP *All_LPS;
@@ -24,7 +26,9 @@ int main()
 
 
         //MAINMENUE/////////////////////////////////////////////////////////
+        system("cls");
         int Sensor;
+        char enter=0;
 
         char Sen1 []= "HTS221 (Luftfeuchtigkeit und Temperatur)";
         char Sen2 []=  "LPS25HB (Druck)";
@@ -46,7 +50,8 @@ int main()
     //  printf("3. LSM9DS1 (XYZ-Koordinaten)\n");
         printf("4. EXIT\n");
         printf("------------------------------\n");
-        printf("Geben Sie gewuenschten Sensor ein:\n");
+        printf("Geben Sie gewuenschten Sensor ein:");
+        fflush(stdin);
         scanf("%d", &Sensor);
         printf("------------------------------\n");
 
@@ -55,6 +60,7 @@ int main()
 
         //LPS-SENSOR//////////////////////////////////////////////////////////////////////
         if (Sensor == 2){
+            system("cls");
             printf("Gewaehlter Sensor ist:\n%d. %s\n", Sensor, Sen1);
             printf("------------------------------\n");
             printf("Geben Sie einen Zeitraum an in dem Sie die Sensordaten haben wollen\n");
@@ -115,6 +121,11 @@ int main()
             print_LPS_array(All_LPS, numb_LPS,tbeginn,tend);      //Daten Ausgeben
             free(All_LPS);
 
+            printf("\n---------PRESS ENTER TO CONTINUE---------");
+            fflush(stdin);
+            while (enter != '\r' && enter != '\n') { enter = getchar(); }
+
+
             //////////////////////////////////////////////////////////////////////////////////
 
 
@@ -122,6 +133,7 @@ int main()
         //HTS-SENSOR//////////////////////////////////////////////////////////////////////
 
         }else if(Sensor == 1){
+            system("cls");
             printf("Gewaehlter Sensor ist:\n%d. %s\n", Sensor, Sen2);
             printf("------------------------------\n");
             printf("Geben Sie einen Zeitraum an in dem Sie die Sensordaten haben wollen\n");
@@ -181,11 +193,16 @@ int main()
             print_HTS_array(All_HTS,numb_HTS,tbeginn,tend);
             free(All_HTS);
 
+            printf("\n---------PRESS ENTER TO CONTINUE---------");
+            fflush(stdin);
+            while (enter != '\r' && enter != '\n') { enter = getchar(); }
+
             //////////////////////////////////////////////////////////////////////////////////
 
 
         ////XYZ-SENSOR//////////////////////////////////////////////////////////////////////////////
         }else if(Sensor == 3){
+            system("cls");
             printf("Gewaehlter Sensor ist:\n%d. %s\n", Sensor, Sen2);
         }
         //////////////////////////////////////////////////////////////////////////////////
@@ -193,6 +210,9 @@ int main()
 
         ////QUIT-PROGRAMM//////////////////////////////////////////////////////////////////////////////
         else if(Sensor == 4){
+            system("cls");
+            printf("PROGRAMM WIRD GESCHLOSSEN");
+            for(int i=0;i<3000000;i++){}
             break;
         }
         //////////////////////////////////////////////////////////////////////////////////
