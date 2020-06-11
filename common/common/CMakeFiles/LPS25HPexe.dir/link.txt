@@ -1,3 +1,0 @@
-"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\LPS25HPexe.dir/objects.a
-C:\PROGRA~2\CODEBL~1\MinGW\bin\ar.exe cr CMakeFiles\LPS25HPexe.dir/objects.a @CMakeFiles\LPS25HPexe.dir\objects1.rsp
-C:\PROGRA~2\CODEBL~1\MinGW\bin\gcc.exe -std=c99 -Werror -g   -Wl,--whole-archive CMakeFiles\LPS25HPexe.dir/objects.a -Wl,--no-whole-archive  -o ..\bin\LPS25HPexe.exe -Wl,--out-implib,..\lib\libLPS25HPexe.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\LPS25HPexe.dir\linklibs.rsp
