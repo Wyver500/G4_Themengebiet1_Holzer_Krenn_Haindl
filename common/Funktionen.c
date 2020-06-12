@@ -169,8 +169,9 @@ void HUM_CALCULATION(struct HTS_221 *temp_HTS, int numb_HTS){
         //printf("%x",H_T_out);
 
         if(((H_T_out & 0x8000)>>15) == 1 ){
-            H_T_out = ~H_T_out;
+            H_T_out = ~H_T_out&0xFFFF;
             H_T_out++;
+            H_T_out=-H_T_out;
         }
 
         temp_HTS[numb].Feuchtigkeit=(float)((((h1_out_rh-h0_out_rh)/2)*(H_T_out-H0_T_out)/(H1_T_out-H0_T_out))+(h0_out_rh/2)); //formel laut Datenblatt
@@ -203,9 +204,9 @@ void TEMP_CALCULATION(struct HTS_221 *temp_HTS, int numb_HTS){
         //printf("%x",T_out);
 
         if(((T_out & 0x8000)>>15) == 1 ){
-            T_out = ~T_out;
+            T_out = ~T_out&0xFFFF;
             T_out++;
-
+            T_out=-T_out;
         }
 
         temp_HTS[numb].Temperatur =(float)((((T1_deg-T0_deg)*(T_out-T0_out))/(T1_out-T0_out))+(T0_deg)); //formel laut Datenblatt
