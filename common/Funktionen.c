@@ -152,38 +152,63 @@ void arraytimecalcHTS(struct HTS_221 *temp_HTS, int numb_HTS) // Array zeitstemp
 }
 
 void HUM_CALCULATION(struct HTS_221 *temp_HTS, int numb_HTS){
-    // Formel laut Datenblatt
+    //Parameter
+    float h0_out_rh = 0x44;
+    float h1_out_rh = 0x86;
+    int H0_T_out= 0x0005;
+    long H1_T_out= 0xd9aa; //2s von d9aa
 
+    H1_T_out = ~H1_T_out & 0x0000ffff;
+    H1_T_out++;
+    H1_T_out = -H1_T_out;
 
-    for (int numb = 0; numb<numb_HTS; numb++){
+    int numb;
+    for (numb = 0; numb<numb_HTS; numb++){
 
-        //Parameter
-        float h0_out_rh = 0x44;
-        float h1_out_rh = 0x86;
-        float H0_T_out= 0x0005;
-        float H1_T_out= 0xd9aa;
-        float H_T_out = (temp_HTS[numb].HUM_OUT_H<<8)|temp_HTS[numb].HUM_OUT_L;
+        int H_T_out = (temp_HTS[numb].HUM_OUT_H<<8) | temp_HTS[numb].HUM_OUT_L;
+        //printf("%x",H_T_out);
 
-        temp_HTS[numb].Feuchtigkeit= ((((h1_out_rh-h0_out_rh)/2)/(H1_T_out-H0_T_out))*(H_T_out-H0_T_out)+(h0_out_rh/2));
+        if(((H_T_out & 0x8000)>>15) == 1 ){
+            H_T_out = ~H_T_out;
+            H_T_out++;
+        }
+
+        temp_HTS[numb].Feuchtigkeit=(float)((((h1_out_rh-h0_out_rh)/2)*(H_T_out-H0_T_out)/(H1_T_out-H0_T_out))+(h0_out_rh/2)); //formel laut Datenblatt
 
     }
 }
 
 
 void TEMP_CALCULATION(struct HTS_221 *temp_HTS, int numb_HTS){
-    // Formel laut Datenblatt
 
+    //Parameter
+    int T1_deg_cx8 = 0x09  ;
+    int T0_deg_cx8 = 0x9e ;
+    float T1_deg;
+    float T0_deg;
+    int T1_out = 0x02d5;
+    int T0_out = 0xfffb;//2s von fffb
+    T0_out = ~T0_out& 0x0000ffff;
+    T0_out++;
+    T0_out = -T0_out;
 
-    for (int numb = 0; numb<numb_HTS; numb++){
+    T1_deg_cx8 = ((0x4 & 0xc)<<6) | T1_deg_cx8;   //Umrechnung un kombination von msb und deg x8
+    T0_deg_cx8 = ((0x4 & 0x3)<<8) | T0_deg_cx8;
+    T1_deg = (float)T1_deg_cx8 /8;
+    T0_deg = (float)T0_deg_cx8 /8;
+    int numb;
+    for (numb = 0; numb<numb_HTS; numb++){
 
-        //Parameter
-        float T1_deg_cx8 = ((0xc4 &0x3 )<<8) | 0x9e ;
-        float T0_deg_cx8 = ((0xc4 &0xc )<<6) | 0x9  ;
-        float T1_out = 0xfffb;
-        float T0_out = 0x02d5;
-        float T_out = (temp_HTS[numb].TEMP_OUT_H<<8)|temp_HTS[numb].TEMP_OUT_L;
+        int T_out = (temp_HTS[numb].TEMP_OUT_H<<8)|temp_HTS[numb].TEMP_OUT_L;
+        //printf("%x",T_out);
 
-        temp_HTS[numb].Temperatur = ((((T1_deg_cx8-T0_deg_cx8)/8)/(T1_out-T0_out))*(T_out-T0_out)+(T0_deg_cx8)/8);
+        if(((T_out & 0x8000)>>15) == 1 ){
+            T_out = ~T_out;
+            T_out++;
+
+        }
+
+        temp_HTS[numb].Temperatur =(float)((((T1_deg-T0_deg)*(T_out-T0_out))/(T1_out-T0_out))+(T0_deg)); //formel laut Datenblatt
 
     }
 }
@@ -353,3 +378,127 @@ double unixzeit_eingabe(int jahr, int monat, int tag,int stunde, int minute, int
 
     return sekunde + 60 * ( minute + 60 * (stunde + 24*tage_seit_1970) );
 }
+
+
+void print_LSM_array(struct LSM9DS *temp_LSM, int numb_LSM9DS, double timebeginn,double timeend)
+{
+    printf("GYRx,y,z in [mdps]\n");
+    printf("ACCx,y,z in [mg]\n");
+    printf("MAGx,y,z in [mgauss]\n\n");
+    printf("|  TIME  |  GYR_x |  GYR_y |  GYR_z |  ACC_x |  ACC_y |  ACC_z |  MAG_x |  MAG_y |  MAG_z |\n");
+    printf("|-----------------------------------------------------------------------------------------|\n");
+    for (int numb = 1; numb<=numb_LSM9DS; numb++)
+    {
+        if(timebeginn<=temp_LSM[numb-1].timestamp&&timeend>=temp_LSM[numb-1].timestamp)
+        {
+            printf("|%7d |", temp_LSM[numb-1].timestamp);
+            printf("%7ld |", temp_LSM[numb-1].GYR_x);
+            printf("%7ld |", temp_LSM[numb-1].GYR_y);
+            printf("%7ld |", temp_LSM[numb-1].GYR_z);
+            printf("%7ld |", temp_LSM[numb-1].ACC_x);
+            printf("%7ld |", temp_LSM[numb-1].ACC_y);
+            printf("%7ld |", temp_LSM[numb-1].ACC_z);
+            printf("%7ld |", temp_LSM[numb-1].MAG_x);
+            printf("%7ld |", temp_LSM[numb-1].MAG_y);
+            printf("%7ld |\n", temp_LSM[numb-1].MAG_z);
+        }
+    }
+}
+
+struct LSM9DS *read_LSM9DS1(char *filename_read)
+{
+
+
+    char line[BUFLEN];
+
+    char field_delim[] = ";";
+    char *p_field_search;                               // pointer für die Funktion strtok
+
+    int numb = 1;                                       // number of Record
+
+    struct LSM9DS *temp_Record = malloc(sizeof(struct LSM9DS));    // Speicher für das erste Feld im Array
+    if (temp_Record == NULL)
+    {
+        printf("No memory available");
+        exit(-1);
+    }
+
+    FILE *open_file = fopen(filename_read, "r");
+    if (NULL == open_file)
+    {
+        printf("could not open %s",open_file);
+        exit(-1);
+    }
+
+
+    while (fgets(line, BUFLEN, open_file)!=NULL)                       // zeilenweises Einlesen - ACHTUNG auf line Delimiter im Source File
+    {
+        //printf("%s",line);
+        temp_Record = realloc(temp_Record,numb*sizeof(struct LSM9DS));      // vergrößern des Speichers bei jedem Record
+        if (temp_Record == NULL)
+        {
+            printf("No memory available");
+            exit(-1);
+        }
+
+        p_field_search = strtok(line,field_delim);                           // 1. Feld in line
+        temp_Record[numb-1].timestamp = (int)strtol(p_field_search, NULL, 10);
+
+        p_field_search = strtok(NULL,field_delim);
+        temp_Record[numb-1].ACC_x = (long long)strtoul(p_field_search, NULL, 16);
+
+        p_field_search = strtok(NULL,field_delim);
+        temp_Record[numb-1].ACC_y = (long long)strtoul(p_field_search, NULL, 16);
+
+        p_field_search = strtok(NULL,field_delim);
+        temp_Record[numb-1].ACC_z = (long long)strtoul(p_field_search, NULL, 16);
+
+        p_field_search = strtok(NULL,field_delim);
+        temp_Record[numb-1].GYR_x = (long long)strtoul(p_field_search, NULL, 16);
+
+        p_field_search = strtok(NULL,field_delim);
+        temp_Record[numb-1].GYR_y = (long long)strtoul(p_field_search, NULL, 16);
+
+        p_field_search = strtok(NULL,field_delim);
+        temp_Record[numb-1].GYR_z = (long long)strtoul(p_field_search, NULL, 16);
+
+        p_field_search = strtok(NULL,field_delim);
+        temp_Record[numb-1].MAG_x = (long long)strtoul(p_field_search, NULL, 16);
+
+        p_field_search = strtok(NULL,field_delim);
+        temp_Record[numb-1].MAG_y = (long long)strtoul(p_field_search, NULL, 16);
+
+        p_field_search = strtok(NULL,field_delim);
+        temp_Record[numb-1].MAG_z = (long long)strtoul(p_field_search, NULL, 16);
+        numb++;
+    }
+
+
+    fclose(open_file);
+
+    temp_Record = realloc(temp_Record,numb*sizeof(struct LSM9DS));
+    temp_Record[numb].timestamp = 0.0;                            // sicherstellen, dass am Ende des Arrays 0.0 im timestamp steht
+
+    //print_struct_array(temp_Record, numb);
+    return(temp_Record);
+}
+
+int count_LSM9DS(struct LSM9DS *All_Records)
+{
+    int i = 0;
+    while(All_Records[i].timestamp!=0.0)       // ACHTUNG!! setzt voraus, dass wirklich 0.0 im letzten timestamp steht
+    {
+        i++;
+    }
+    return i-1;
+}
+
+long long MASK (long long GYR)
+{
+    if(GYR>>31== 1){
+        GYR = GYR-1;
+        GYR = ~(GYR);
+    }
+    return GYR;
+}
+

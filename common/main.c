@@ -17,17 +17,19 @@
 int main()
 {
     //Variablen/////////////////////////////////////////////////////////
-    char filename_HTS[]= "Test_Data_10k_HTS221.csv";
-    char filename_LPS[]= "Test_Data_45_LPS25_02.csv";
+    char filename_HTS[]= "Test_Data_10k_HTS221.CSV";
+    char filename_LPS[]= "Test_Data_10k_LPS25.CSV";
+    char filename_LSM[] = "Test_Data_20k_IMU-LSM9DS1.csv";
     struct LPS25HP *All_LPS;
     struct HTS_221 *All_HTS;
+    struct LSM9DS *All_LSM;
 
     int Sensor;
     char enter=0;
 
     char Sen1 []= "HTS221 (Luftfeuchtigkeit und Temperatur)";
     char Sen2 []=  "LPS25HB (Druck)";
-//      char Sen3 []= "LSM9DS1 (XYZ-Koordinaten)";
+    char Sen3 []= "LSM9DS1 (XYZ-Koordinaten)";
     int time_start_j,SENSOR_start_j,SENSOR_end_j;
     int time_start_mon,SENSOR_start_mon,SENSOR_end_mon;
     int time_start_d,SENSOR_start_d,SENSOR_end_d;
@@ -45,13 +47,11 @@ int main()
         //MAINMENUE/////////////////////////////////////////////////////////
         system("cls");
         printf("------------------------------\n");
-        printf("Alles Sensor Daten wurden am 15.04.2020 aufgezeichnet!\n");
-        printf("------------------------------\n");
         printf("Welche Sensordaten sind gewuenscht?\n");
         printf("Zur Auswahl stehen:\n");
         printf("1. HTS221 (Luftfeuchtigkeit und Temperatur)\n");
         printf("2. LPS25HB (Druck)\n");
-    //  printf("3. LSM9DS1 (XYZ-Koordinaten)\n");
+        printf("3. LSM9DS1 (XYZ-Koordinaten)\n");
         printf("4. EXIT\n");
         printf("------------------------------\n");
         printf("Geben Sie gewuenschten Sensor ein:");
@@ -324,7 +324,55 @@ int main()
         }
 		else if(Sensor == 3){
             system("cls");
-            printf("Gewaehlter Sensor ist:\n%d. %s\n", Sensor, Sen2);
+            enter=0;
+			time_start_s = 0;
+            All_LSM = read_LSM9DS1(filename_LSM);
+            int numb_LSM9DS = count_LSM9DS(All_LSM);
+
+            for (int numb = 0; numb < numb_LSM9DS; numb++)
+            {
+                All_LSM[numb].ACC_x = MASK(All_LSM[numb].ACC_x);
+                All_LSM[numb].ACC_y = MASK(All_LSM[numb].ACC_y);
+                All_LSM[numb].ACC_z = MASK(All_LSM[numb].ACC_z);
+                All_LSM[numb].GYR_x = MASK(All_LSM[numb].GYR_x);
+                All_LSM[numb].GYR_y = MASK(All_LSM[numb].GYR_y);
+                All_LSM[numb].GYR_z = MASK(All_LSM[numb].GYR_z);
+                All_LSM[numb].MAG_x = MASK(All_LSM[numb].MAG_x);
+                All_LSM[numb].MAG_y = MASK(All_LSM[numb].MAG_y);
+                All_LSM[numb].MAG_z = MASK(All_LSM[numb].MAG_z);
+            }
+            SENSOR_start_s=All_LSM[0].timestamp;
+            SENSOR_end_s=All_LSM[numb_LSM9DS-1].timestamp;
+
+            printf("Gewaehlter Sensor ist:\n%d. %s\n", Sensor, Sen3);
+            printf("------------------------------\n");
+            printf("Geben Sie einen Zeitraum an in dem Sie die Sensordaten haben wollen\n");
+            printf("------------------------------\n");
+            printf("Gemessener Zeitraum %d - %d\n",SENSOR_start_s,SENSOR_end_s);
+            ////////////////////////////////////////////////////////////////7
+            while (time_start_s < SENSOR_start_s || time_start_s > SENSOR_end_s)
+            {
+				printf("------------------------------\n");
+				printf("Anfang in Millisekunden:");
+				scanf("%d", &time_start_s);
+                if(time_start_s < SENSOR_start_s || time_start_s > SENSOR_end_s)
+                {
+					printf("Der eingegebene Wert ist Ungueltig!\n");
+				}
+			}
+            printf("------------------------------\n");
+            printf("Wie lange in Millisekunden?:");
+            scanf("%d", &time_lengh_s);
+            printf("------------------------------\n");
+            double tbeginn =time_start_s;
+            double tend =time_start_s+time_lengh_s;
+
+            print_LSM_array(All_LSM,numb_LSM9DS,tbeginn,tend);
+            free(All_LSM);
+            printf("\n---------PRESS ENTER TO CONTINUE---------");
+            fflush(stdin);
+            while (enter != '\r' && enter != '\n') { enter = getchar(); }
+
         }
         //////////////////////////////////////////////////////////////////////////////////
 
