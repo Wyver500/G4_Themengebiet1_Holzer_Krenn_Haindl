@@ -1,0 +1,206 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define Offset 45
+#define BUFLEN 1024
+
+struct Record         // Values LSM9DS1
+{
+    // Enable the gyroscope
+    long long GYR_x;      // x
+    long long GYR_y;      // y
+    long long GYR_z;      // z
+    // Enable the accelerometer
+    long long ACC_x;      // x
+    long long ACC_y;      // y
+    long long ACC_z;      // z
+    //Enable the magnetometer
+    long long MAG_x;      // x
+    long long MAG_y;      // y
+    long long MAG_z;      // z
+    int  timestamp;
+
+};
+
+struct Record *read_LSM9DS1(char *filename_read) //1         // Einlesen der Daten und Speichern in struct Array
+{
+
+
+    char line[BUFLEN];
+
+    char field_delim[] = ";";
+    char *p_field_search;                               // pointer für die Funktion strtok
+
+    int numb = 1;                                       // number of Record
+
+    struct Record *temp_Record = malloc(sizeof(struct Record));    // Speicher für das erste Feld im Array
+    if (temp_Record == NULL)
+    {
+        printf("No memory available");
+        exit(-1);
+    }
+
+    FILE *open_file = fopen(filename_read, "r");
+    if (NULL == open_file)
+    {
+        printf("could not open %s",open_file);
+        exit(-1);
+    }
+
+
+    while (fgets(line, BUFLEN, open_file)!=NULL)                       // zeilenweises Einlesen - ACHTUNG auf line Delimiter im Source File
+    {
+        //printf("%s",line);
+        temp_Record = realloc(temp_Record,numb*sizeof(struct Record));      // vergrößern des Speichers bei jedem Record
+        if (temp_Record == NULL)
+        {
+            printf("No memory available");
+            exit(-1);
+        }
+
+        p_field_search = strtok(line,field_delim);                           // 1. Feld in line
+        temp_Record[numb-1].timestamp = (int)strtol(p_field_search, NULL, 16);
+
+        p_field_search = strtok(NULL,field_delim);
+        temp_Record[numb-1].ACC_x = (long long)strtol(p_field_search, NULL, 16);
+
+
+
+        p_field_search = strtok(NULL,field_delim);
+
+        temp_Record[numb-1].ACC_y = strtoul(p_field_search, NULL, 16);
+
+        p_field_search = strtok(NULL,field_delim);
+        temp_Record[numb-1].ACC_z = (long long)strtoul(p_field_search, NULL, 16);
+
+        p_field_search = strtok(NULL,field_delim);
+        temp_Record[numb-1].GYR_x = (long long)strtoul(p_field_search, NULL, 16);
+
+        p_field_search = strtok(NULL,field_delim);
+        temp_Record[numb-1].GYR_y = (long long)strtoul(p_field_search, NULL, 16);
+
+        p_field_search = strtok(NULL,field_delim);
+        temp_Record[numb-1].GYR_z = (long long)strtoul(p_field_search, NULL, 16);
+
+        p_field_search = strtok(NULL,field_delim);
+        temp_Record[numb-1].MAG_x = (long long)strtoul(p_field_search, NULL, 16);
+
+        p_field_search = strtok(NULL,field_delim);
+        temp_Record[numb-1].MAG_y = (long long)strtoul(p_field_search, NULL, 16);
+
+        p_field_search = strtok(NULL,field_delim);
+        temp_Record[numb-1].MAG_z = (long long)strtoul(p_field_search, NULL, 16);
+        numb++;
+    }
+
+
+    fclose(open_file);
+
+    temp_Record = realloc(temp_Record,numb*sizeof(struct Record));
+    temp_Record[numb-1].timestamp = EOF;                            // sicherstellen, dass am Ende des Arrays 0.0 im timestamp steht
+
+    //print_struct_array(temp_Record, numb);
+    return(temp_Record);
+}
+
+void write_struct_array(struct Record *temp_Record, char *filename_write, int numb_Records)//4
+{
+    FILE *open_file = fopen(filename_write, "w+");
+    if (NULL==open_file)
+    {
+        printf("could not open %s",open_file);
+        exit(-1);
+    }
+
+    for (int numb = 1; numb<=numb_Records; numb++)
+    {
+        fprintf(open_file,"TIME:%d.%d.%d %d:%d:%d TEMPERATURE: %d°C PRESSURE:%d hPa\n");
+    }
+    fclose(open_file);
+}
+
+int count_Records(struct Record *All_Records) //2
+{
+    int i = 0;
+    while(All_Records[i].timestamp!=EOF)       // ACHTUNG!! setzt voraus, dass wirklich 0.0 im letzten timestamp steht
+    {
+        i++;
+    }
+    return i-1;
+}
+ long long MASK (long long GYR){
+
+    if(((GYR & 0xFFFFFFFF) >>31) == 1){
+        GYR = GYR-1;
+        GYR = ~(GYR);
+
+        printf("");
+    }
+
+    return GYR;
+}
+
+int main()
+{
+    //Variablen zur Datendatei Einlesen
+    char filename_read[] = "Test_Data_20k_IMU-LSM9DS1.csv";         // Datei zum Einlesen
+    char filename_write[] = "write_test.txt";                       // Datei zum Schreiben
+
+    struct Record *All_Records;                                     // Pointer auf Startadresse des Arrays
+    ////////////////////////////////////////////////
+
+
+    All_Records = read_LSM9DS1(filename_read);                      // Einlesen der Daten
+
+    int numb_Records = count_Records(All_Records);                  // Zählen der Records
+//    printf("Zeitstempel:%d\n", numb_Records);
+    printf("Gyroskop (FS = +- 2000 dps), mdps/LSB x,y,z\n");
+    printf("Accelerometer (FS = +-16g), mg/LSB x,y,z\n");
+    printf("Magnetometer (FS = +-12 gauss (mgauss/LSB) x,y,z\n");
+
+    char G_X [] = "GYR-X";
+    char G_Y []= "GYR-Y";
+    char G_Z []= "GYR-Z";
+    char A_X [] = "ACC-X";
+    char A_Y [] = "ACC-Y";
+    char A_Z [] = "ACC-Z";
+    char M_X [] = "MAG-X";
+    char M_Y [] = "MAG-Y";
+    char M_Z [] = "MAG-Z";
+
+//    printf("%20s,%20s,%20s,%20s,%20s,%20s,%20s,%20s,%20s\n", G_X, G_Y, G_Z, A_X, A_Y, A_Z, M_X, M_Y, M_Z);
+
+    for (int numb = 0; numb < numb_Records; numb++){
+
+        All_Records[numb].GYR_x = MASK(All_Records[numb].GYR_x);
+        printf("%lld", All_Records[numb].GYR_x);
+        All_Records[numb].GYR_y = MASK(All_Records[numb].GYR_y);
+        printf("%15lld", All_Records[numb].GYR_y);
+        All_Records[numb].GYR_z = MASK(All_Records[numb].GYR_z);
+        printf("%15lld", All_Records[numb].GYR_z);
+    }
+
+    for (int numb = 0; numb < numb_Records; numb++){
+        MASK(All_Records[numb].ACC_x);
+        printf("%15lld", All_Records[numb].ACC_x);
+        MASK(All_Records[numb].ACC_y);
+        printf("%15lld", All_Records[numb].ACC_y);
+        MASK(All_Records[numb].ACC_z);
+        printf("%15lld", All_Records[numb].ACC_z);
+    }
+
+    for (int numb = 0; numb < numb_Records; numb++){
+        MASK(All_Records[numb].MAG_x);
+        printf("%15lld", All_Records[numb].MAG_x);
+        MASK(All_Records[numb].MAG_y);
+        printf("%15lld", All_Records[numb].MAG_y);
+        MASK(All_Records[numb].MAG_z);
+        printf("%15lld", All_Records[numb].MAG_z);
+    }
+
+    write_struct_array(All_Records, filename_write, numb_Records);   // Schreiben der Daten in neue Datei
+
+    free(All_Records);                                               // Speicher freigeben
+
+    return 0;
+}
